@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column; /* Stack items vertically */
+            align-items: center; /* Center items horizontally */
+            justify-content: center; /* Center items vertically */
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            margin-bottom: 20px; /* Add margin below the title for spacing */
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(var(--cols, 3), 80px); /* Adjust the width of each column */
+            grid-gap: 0px; /* Adjust the gap between cells */
+        }
+
+        .cell {
+            width: 100px; /* Adjust the width of the cells */
+            height: 100px; /* Adjust the height of the cells */
+            border: 1px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tic-Tac-Toe</h1>
+    <div class="grid-container" id="gridContainer">
+        <div class="cell" onclick="makeMove(0, 0)"></div>
+        <div class="cell" onclick="makeMove(0, 1)"></div>
+        <div class="cell" onclick="makeMove(0, 2)"></div>
+        <div class="cell" onclick="makeMove(1, 0)"></div>
+        <div class="cell" onclick="makeMove(1, 1)"></div>
+        <div class="cell" onclick="makeMove(1, 2)"></div>
+        <div class="cell" onclick="makeMove(2, 0)"></div>
+        <div class="cell" onclick="makeMove(2, 1)"></div>
+        <div class="cell" onclick="makeMove(2, 2)"></div>
+    </div>
+    <p id="message"></p>
+
+    <script>
+        let currentPlayer = 'X';
+        let gameOver = false;
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const gridContainer = document.getElementById("gridContainer");
+            const gridSize = 3; // Change this to your desired grid size
+
+            document.documentElement.style.setProperty('--cols', gridSize);
+
+            for (let i = 0; i < gridSize * gridSize; i++) {
+                const cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.setAttribute("data-index", i);
+                gridContainer.appendChild(cell);
+            }
+        });
+
+        function makeMove(row, col) {
+            if (gameOver) return;
+            const cell = document.querySelector(`.grid-container .cell[data-index="${row * 3 + col}"]`);
+            if (cell.textContent === '') {
+                cell.textContent = currentPlayer;
+                if (checkWin(row, col)) {
+                    document.getElementById('message').textContent = `${currentPlayer} wins!`;
+                    gameOver = true;
+                } else if (isDraw()) {
+                    document.getElementById('message').textContent = "It's a draw!";
+                    gameOver = true;
+                } else {
+                    currentPlayer = (currentPlayer === 'X') ? 'O' : 'X';
+                }
+            }
+        }
+
+        function checkWin(row, col) {
+            const cells = document.querySelectorAll('.grid-container .cell');
+            const symbol = cells[row * 3 + col].textContent;
+
+            // Check row, column, and diagonals
+            if (
+                (cells[row * 3].textContent === symbol && cells[row * 3 + 1].textContent === symbol && cells[row * 3 + 2].textContent === symbol) ||
+                (cells[col].textContent === symbol && cells[col + 3].textContent === symbol && cells[col + 6].textContent === symbol) ||
+                (cells[0].textContent === symbol && cells[4].textContent === symbol && cells[8].textContent === symbol) ||
+                (cells[2].textContent === symbol && cells[4].textContent === symbol && cells[6].textContent === symbol)
+            ) {
+                return true;
+            }
+            return false;
+        }
+
+        function isDraw() {
+            const cells = document.querySelectorAll('.grid-container .cell');
+            return [...cells].every(cell => cell.textContent !== '');
+        }
+    </script>
+</body>
+</html>

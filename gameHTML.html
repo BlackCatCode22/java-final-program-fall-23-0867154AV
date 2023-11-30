@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            text-align: center; /* Center the content horizontally */
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(var(--cols, 3), 80px);
+            grid-gap: 10px;
+            margin: 0 auto; /* Center the grid container horizontally */
+        }
+
+        .cell {
+            width: 80px;
+            height: 80px;
+            border: 1px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 60px;
+        }
+    </style>
+</head>
+<body>
+<h1>Tic-Tac-Toe</h1>
+<div class="grid-container" id="gridContainer"></div>
+<p id="message"></p>
+
+<script>
+    let currentPlayer = 'X';
+    let gameOver = false;
+    const gridSize = 3;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const gridContainer = document.getElementById("gridContainer");
+
+        document.documentElement.style.setProperty('--cols', gridSize);
+
+        for (let i = 0; i < gridSize * gridSize; i++) {
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
+            cell.setAttribute("data-index", i);
+            cell.addEventListener("click", () => makeMove(Math.floor(i / gridSize), i % gridSize));
+            gridContainer.appendChild(cell);
+        }
+    });
+
+    function makeMove(row, col) {
+        if (gameOver) return;
+        const cell = document.querySelector(`.grid-container .cell[data-index="${row * gridSize + col}"]`);
+        if (cell.textContent === '') {
+            cell.textContent = currentPlayer;
+            if (checkWin(row, col)) {
+                document.getElementById('message').textContent = `${currentPlayer} wins!`;
+                gameOver = true;
+            } else if (isDraw()) {
+                document.getElementById('message').textContent = "It's a draw!";
+                gameOver = true;
+            } else {
+                currentPlayer = (currentPlayer === 'X') ? 'O' : 'X';
+            }
+        }
+    }
+
+    function checkWin(row, col) {
+        const cells = document.querySelectorAll('.grid-container .cell');
+        const symbol = cells[row * gridSize + col].textContent;
+
+        // Check row, column, and diagonals
+        if (
+            checkLine(0, 0, 0, 1, 0, 2, symbol) || // row 1
+            checkLine(1, 0, 1, 1, 1, 2, symbol) || // row 2
+            checkLine(2, 0, 2, 1, 2, 2, symbol) || // row 3
+            checkLine(0, 0, 1, 0, 2, 0, symbol) || // column 1
+            checkLine(0, 1, 1, 1, 2, 1, symbol) || // column 2
+            checkLine(0, 2, 1, 2, 2, 2, symbol) || // column 3
+            checkLine(0, 0, 1, 1, 2, 2, symbol) || // diagonal \
+            checkLine(0, 2, 1, 1, 2, 0, symbol)    // diagonal /
+        ) {
+            return true;
+        }
+        return false;
+    }
+
+    function checkLine(x1, y1, x2, y2, x3, y3, symbol) {
+        const cells = document.querySelectorAll('.grid-container .cell');
+        return (
+            cells[x1 * gridSize + y1].textContent === symbol &&
+            cells[x2 * gridSize + y2].textContent === symbol &&
+            cells[x3 * gridSize + y3].textContent === symbol
+        );
+    }
+
+    function isDraw() {
+        const cells = document.querySelectorAll('.grid-container .cell');
+        return [...cells].every(cell => cell.textContent !== '');
+    }
+</script>
+</body>
+</html>
